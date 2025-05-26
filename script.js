@@ -53,6 +53,47 @@ const stationData=[
   {id:'Taft Avenue',line:'MRT-3',n:['Magallanes'],t:[{to:'EDSA',line:'LRT-1'}]}
 ];
 
+/* lat-lon for each station (approx.) */
+const stationCoords = {
+  "Baclaran":[14.534,120.997], "EDSA":[14.537,120.994], "Libertad":[14.545,120.997],
+  "Gil Puyat":[14.554,120.999], "Vito Cruz":[14.563,120.996], "Quirino":[14.571,120.993],
+  "Pedro Gil":[14.579,120.991], "UN Avenue":[14.586,120.986], "Central Terminal":[14.594,120.982],
+  "Carriedo":[14.599,120.979], "Doroteo Jose":[14.606,120.979], "Bambang":[14.614,120.978],
+  "Tayuman":[14.620,120.979], "Blumentritt":[14.628,120.979], "Abad Santos":[14.635,120.979],
+  "R. Papa":[14.642,120.979], "5th Avenue":[14.650,120.979], "Monumento":[14.657,120.979],
+  "Balintawak":[14.660,120.998], "Fernando Poe Jr.":[14.669,121.013],
+
+  "Recto":[14.603,120.981], "Legarda":[14.605,120.993], "Pureza":[14.603,121.003],
+  "V. Mapa":[14.604,121.015], "J. Ruiz":[14.603,121.024], "Gilmore":[14.610,121.039],
+  "Betty Go-Belmonte":[14.615,121.048], "Araneta-Cubao":[14.619,121.055],
+  "Anonas":[14.623,121.062], "Katipunan":[14.629,121.072], "Santolan":[14.635,121.081],
+  "Marikina-Pasig":[14.640,121.093], "Antipolo":[14.623,121.116],
+
+  "North Avenue":[14.653,121.038], "Quezon Avenue":[14.642,121.032], "Kamuning":[14.632,121.036],
+  "Araneta Center-Cubao":[14.619,121.053], "Santolan-Annapolis":[14.612,121.057],
+  "Ortigas":[14.587,121.056], "Shaw Boulevard":[14.580,121.053], "Boni":[14.568,121.046],
+  "Guadalupe":[14.563,121.047], "Buendia":[14.554,121.044], "Ayala":[14.551,121.033],
+  "Magallanes":[14.541,121.019], "Taft Avenue":[14.536,121.002]
+};
+
+function haversine(lat1,lon1,lat2,lon2){
+  const R = 6371; // km
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+            Math.sin(dLon/2)**2;
+  return R * 2 * Math.asin(Math.sqrt(a));
+}
+function nearestStation(lat,lon){
+  let best=null,min=1e9;
+  for(const [st,[slat,slon]] of Object.entries(stationCoords)){
+    const d=haversine(lat,lon,slat,slon);
+    if(d<min){min=d;best=st;}
+  }
+  return best;
+}
+
 /* -------- FULL LANDMARK MAP -------- */
 const landmarks={
   /* LRT-1 */
@@ -155,7 +196,9 @@ const tips=[
   "Stand on the right side of escalators; walk on the left.",
   "Stay behind the yellow line until the train stops.",
   "Report unattended items or suspicious activity to staff.",
-  "Click a station in the list to see its nearby landmarks."
+  "Click a station in the list to see its nearby landmarks.",
+  "Click 📍 to auto-detect the nearest station."
+
 
 ];
 let tipIdx=0;function rotateTip(){commuterTip.textContent="🚉 Tip: "+tips[tipIdx];tipIdx=(tipIdx+1)%tips.length;}
@@ -217,3 +260,25 @@ function showLandmarks(station){
   landmarkModalLabel.textContent = `Landmarks near ${station}`;
   bootstrap.Modal.getOrCreateInstance(document.getElementById('landmarkModal')).show();
 }
+
+locBtn.addEventListener('click',()=>{
+  if(!navigator.geolocation){
+    alert('Geolocation not supported by your browser');
+    return;
+  }
+  locBtn.disabled=true;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const {latitude,longitude}=pos.coords;
+      const st = nearestStation(latitude,longitude);
+      startInput.value = st;
+      alert(`Nearest station detected: ${st}`);
+      locBtn.disabled=false;
+    },
+    err=>{
+      alert('Unable to retrieve location.');
+      locBtn.disabled=false;
+    },
+    {enableHighAccuracy:true,timeout:8000}
+  );
+});
