@@ -197,7 +197,9 @@ const tips=[
   "Stay behind the yellow line until the train stops.",
   "Report unattended items or suspicious activity to staff.",
   "Click a station in the list to see its nearby landmarks.",
-  "Click 📍 to auto-detect the nearest station."
+  "Click 📍 to auto-detect the nearest station.",
+  "Click 🔖 to bookmark any trip for quick reuse.",
+
 
 
 ];
@@ -230,6 +232,27 @@ tripForm.onsubmit=e=>{
     prev=o.line;prevLi=li;
   });
   
+  let lastRoute = {start:s, end:d};               // keep for bookmark
+
+saveBtn.onclick = () => {
+  const list = loadBookmarks();
+  const exists = list.some(r => r.start === lastRoute.start && r.end === lastRoute.end);
+  if (exists) {
+    // show tooltip once
+    const tt = bootstrap.Tooltip.getOrCreateInstance(saveBtn, {title:'Route already in bookmarks', trigger:'manual'});
+    tt.show();
+    setTimeout(()=>tt.hide(),1500);
+    return;
+  }
+  const name = prompt('Bookmark name:', `${lastRoute.start} ➜ ${lastRoute.end}`);
+  if(!name) return;
+  list.push({...lastRoute, name});
+  saveBookmarks(list);
+  alert('Saved!');
+};
+
+
+
   // enable landmark pop-up on each list item
 timeline.querySelectorAll('.timeline-item').forEach(it=>{
   it.addEventListener('click',()=>showLandmarks(it.dataset.station));
@@ -282,3 +305,56 @@ locBtn.addEventListener('click',()=>{
     {enableHighAccuracy:true,timeout:8000}
   );
 });
+
+showBm.onclick = ()=>{
+  renderBookmarks();
+  bootstrap.Modal.getOrCreateInstance(bmModal).show();
+};
+
+
+
+function loadBookmarks(){
+  return JSON.parse(localStorage.getItem('bookmarks') || '[]');
+}
+function saveBookmarks(arr){
+  localStorage.setItem('bookmarks', JSON.stringify(arr));
+}
+function renderBookmarks(){
+  const ul = bmList;
+  ul.innerHTML = '';
+  const bms = loadBookmarks();
+  if(!bms.length){
+    ul.innerHTML = '<li class="list-group-item">No saved routes yet.</li>';
+    return;
+  }
+  bms.forEach((b,i)=>{
+    ul.insertAdjacentHTML('beforeend',
+      `<li class="list-group-item d-flex justify-content-between align-items-center">
+         <button class="btn btn-link p-0 bm-load" data-start="${b.start}" data-end="${b.end}">
+           ${b.name}<br><small class="text-muted">${b.start} ➜ ${b.end}</small>
+         </button>
+         <button class="btn btn-sm btn-danger bm-del" data-idx="${i}">✖</button>
+       </li>`);
+  });
+
+  // load route
+  ul.querySelectorAll('.bm-load').forEach(btn=>{
+    btn.onclick = ()=>{
+      startInput.value = btn.dataset.start;
+      endInput.value   = btn.dataset.end;
+      bootstrap.Modal.getInstance(bmModal).hide();
+      tripForm.requestSubmit();        // reuse existing logic
+    };
+  });
+  // delete route
+  ul.querySelectorAll('.bm-del').forEach(btn=>{
+    btn.onclick = ()=>{
+      const arr = loadBookmarks();
+      arr.splice(+btn.dataset.idx,1);
+      saveBookmarks(arr);
+      renderBookmarks();
+    };
+  });
+}
+
+
