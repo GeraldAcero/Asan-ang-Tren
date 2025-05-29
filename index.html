@@ -18,16 +18,17 @@
     <div class="container-fluid">
       <!-- <a class="navbar-brand" href="#">Asan ang Tren?</a> -->
       <a class="navbar-brand d-flex align-items-center" href="#">
+        
   <img src="logo.png" alt="Logo" class="logo me-2">
   <span>Asan ang Tren?</span>
 </a>
-      <div class="form-check form-switch ms-auto">
-        <input class="form-check-input" type="checkbox" id="themeToggle">
-        <label class="form-check-label" for="themeToggle" id="themeLabel">Dark Mode</label>
+    <img src="moon.svg" id="themeIcon"
+     alt="Toggle theme" class="theme-btn ms-auto" title="Switch to dark mode">
 
-      </div>
+
     </div>
   </nav>
+
 <!-- bookmarks list -->
 <div class="modal fade" id="bmModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
@@ -50,12 +51,11 @@
     <!-- SEARCH FORM -->
     <form id="tripForm" class="mb-4">
       <div class="mb-3">
-        <button type="button" id="locBtn" class="btn btn-outline-secondary btn-sm mt-1 w-100">
-  📍 Use current location
-</button>
+        
 
         <label class="form-label fw-semibold">Search by</label>
         <div>
+
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="searchType" id="byStation" value="station" checked>
             <label class="form-check-label" for="byStation">Station</label>
@@ -65,16 +65,20 @@
             <label class="form-check-label" for="byLandmark">Landmark</label>
           </div>
         </div>
+        <button type="button" id="locBtn" class="btn btn-outline-secondary btn-sm mt-1 w-100">
+  📍 Use current location (station)
+</button>
       </div>
-
+      <hr>
       <div class="row g-3">
         <div class="col-12 col-md-6">
-          <label class="form-label" id="startLabel" for="startInput">Start Station</label>
+          <label class="form-label" id="startLabel" for="startInput" style="font-weight: bold;">Start Station</label>
           <input class="form-control" list="startOptions" id="startInput" placeholder="Type or click ▼" autocomplete="off" required>
           <datalist id="startOptions"></datalist>
         </div>
+        
         <div class="col-12 col-md-6">
-          <label class="form-label" id="endLabel" for="endInput">End Station</label>
+          <label class="form-label" id="endLabel" for="endInput" style="font-weight: bold;">End Station</label>
           <input class="form-control" list="endOptions" id="endInput" placeholder="Type or click ▼" autocomplete="off" required>
           <datalist id="endOptions"></datalist>
         </div>
@@ -91,9 +95,9 @@
     <span id="totalTransfers"></span> transfers,
     ≈ <span id="totalDuration"></span> min)
   </span>
-  <button id="saveBtn" class="btn btn-outline-warning btn-sm ms-2" title="Save this route">
-    🔖
-  </button>
+  <img src="bookmark_outline.svg" id="saveIcon"
+     alt="Save route" class="bookmark-btn ms-2" title="Save this route">
+
 </h2>
   
 
@@ -130,9 +134,30 @@
       <ul id="timeline" class="list-group mb-4"></ul>
       <div id="commuterTip" class="alert alert-secondary small text-center"></div>
     </div>
+
+    <section class="card card-body mb-4">
+  <h5 class="card-title">What is “Asan ang Tren?”</h5>
+  <p class="card-text">
+    A mobile-friendly guide for navigating LRT-1, LRT-2, and MRT-3.  
+    Plan by station <em>or</em> landmark, see transfers
+    and tap any station for nearby landmarks.
+  </p>
+  <ul class="small mb-0">
+    <li>Fill <strong>start</strong> &amp; <strong>end</strong>, then tap <kbd>Show Route</kbd>.</li>
+    <li>Use <img src="moon_black.svg" style="height:14px"> to switch light / dark mode.</li>
+    <li>Click <img src="bookmark_outline.svg" style="height:14px"> to save a favourite trip.</li>
+    <li>Open <strong>📚 Bookmarks</strong> (near footer) to reload or delete saved routes.</li>
+    <li>On mobile, tap <strong>📍</strong> to auto-detect the nearest station.(no landmark yet)</li>
+  </ul>
+</section>
+
+<section style="text-align: center;">
+  <button id="showBm" class="btn btn-link p-0" style="text-decoration: none;font-weight: bold;">📚 Bookmarks</button>
+</section>
+
   </main>
   <footer class="bg-light text-center py-3 mt-5">
-    <button id="showBm" class="btn btn-link p-0">📚 Bookmarks</button>
+    
 
   <small>&copy; 2025 — All rights reserved · v1.0</small>
 </footer>
