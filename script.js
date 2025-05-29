@@ -168,19 +168,33 @@ function setTheme(mode){
   document.documentElement.dataset.bsTheme = mode;
   localStorage.theme = mode;
 
-  // navbar stays #333 so no toggle needed
+  // footer color handling
   const footer = document.querySelector('footer');
   footer.classList.toggle('bg-dark',  mode==='dark');
   footer.classList.toggle('bg-light', mode==='light');
 
-  // change toggle text
-  themeLabel.textContent = mode==='dark' ? 'Light Mode' : 'Dark Mode';
+  // swap icon & tooltip
+  themeIcon.src   = mode==='dark' ? 'sun.svg'  : 'moon.svg';
+  themeIcon.title = mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode';
 }
 
+themeIcon.onclick = () => {
+  const next = document.documentElement.dataset.bsTheme === 'dark' ? 'light' : 'dark';
+  setTheme(next);
+};
+
+let lastRoute = { start:null, end:null }; 
+
+function refreshSaveIcon(){
+  const exists = loadBookmarks().some(r => r.start===lastRoute.start && r.end===lastRoute.end);
+  saveIcon.src   = exists ? 'bookmark_filled.svg'   : 'bookmark_outline.svg';
+  saveIcon.title = exists ? 'Route already saved'   : 'Save this route';
+  return exists;
+}
+
+
 /* -------- INIT -------- */
-setTheme(localStorage.theme||'light');
-themeToggle.checked=localStorage.theme==='dark';
-themeToggle.onchange=e=>setTheme(e.target.checked?'dark':'light');
+
 fill('station');
 document.querySelectorAll('input[name="searchType"]').forEach(r=>r.onchange=e=>fill(e.target.value));
 
@@ -205,6 +219,7 @@ const tips=[
 ];
 let tipIdx=0;function rotateTip(){commuterTip.textContent="🚉 Tip: "+tips[tipIdx];tipIdx=(tipIdx+1)%tips.length;}
 setInterval(rotateTip,5000);
+
 
 /* -------- FORM SUBMIT -------- */
 tripForm.onsubmit=e=>{
@@ -231,25 +246,30 @@ tripForm.onsubmit=e=>{
     timeline.appendChild(li);
     prev=o.line;prevLi=li;
   });
-  
-  let lastRoute = {start:s, end:d};               // keep for bookmark
 
-saveBtn.onclick = () => {
-  const list = loadBookmarks();
-  const exists = list.some(r => r.start === lastRoute.start && r.end === lastRoute.end);
-  if (exists) {
-    // show tooltip once
-    const tt = bootstrap.Tooltip.getOrCreateInstance(saveBtn, {title:'Route already in bookmarks', trigger:'manual'});
-    tt.show();
-    setTimeout(()=>tt.hide(),1500);
+
+  lastRoute.start = s;   // update global
+  lastRoute.end   = d;
+  refreshSaveIcon();   // sync icon for this route
+              // keep for bookmark
+
+saveIcon.onclick = ()=>{
+
+  if(refreshSaveIcon()){            // already exists
+    const tt = bootstrap.Tooltip.getOrCreateInstance(saveIcon,{title:'Already in bookmarks',trigger:'manual'});
+    tt.show(); setTimeout(()=>tt.hide(),1500);
     return;
   }
   const name = prompt('Bookmark name:', `${lastRoute.start} ➜ ${lastRoute.end}`);
   if(!name) return;
-  list.push({...lastRoute, name});
+  const list = loadBookmarks();
+  list.push({...lastRoute,name});
   saveBookmarks(list);
+  refreshSaveIcon();
   alert('Saved!');
 };
+   // sync icon for this route
+
 
 
 
@@ -338,14 +358,16 @@ function renderBookmarks(){
   });
 
   // load route
-  ul.querySelectorAll('.bm-load').forEach(btn=>{
-    btn.onclick = ()=>{
-      startInput.value = btn.dataset.start;
-      endInput.value   = btn.dataset.end;
-      bootstrap.Modal.getInstance(bmModal).hide();
-      tripForm.requestSubmit();        // reuse existing logic
-    };
-  });
+ul.querySelectorAll('.bm-load').forEach(btn=>{
+  btn.onclick = ()=>{
+    startInput.value = btn.dataset.start;
+    endInput.value   = btn.dataset.end;
+    bootstrap.Modal.getInstance(bmModal).hide();
+    tripForm.requestSubmit();   // redraw timeline
+    refreshSaveIcon();          // <<< NEW: update bookmark icon state
+  };
+});
+
   // delete route
   ul.querySelectorAll('.bm-del').forEach(btn=>{
     btn.onclick = ()=>{
