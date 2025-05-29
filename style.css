@@ -1,4 +1,4 @@
-body{padding-top:4.5rem}
+body{padding-top:4.5rem;font-family: raleway}
 
 /* timeline rail */
 #timeline{position:relative;padding-left:1.5rem}
@@ -30,3 +30,6 @@ body{padding-top:4.5rem}
 footer{color:var(--clr-dark);}
 .navbar-dark{background:#333333!important;}
 footer.bg-dark{background:#333333!important;color:#fff;}
+.theme-btn,
+.bookmark-btn{height:24px;width:24px;cursor:pointer}
+@media(max-width:576px){.theme-btn,.bookmark-btn{height:20px;width:20px}}
