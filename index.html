@@ -14,7 +14,7 @@
 </head>
 <body>
   <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top shadow-sm">
     <div class="container-fluid">
       <!-- <a class="navbar-brand" href="#">Asan ang Tren?</a> -->
       <a class="navbar-brand d-flex align-items-center" href="#">
@@ -44,13 +44,44 @@
   </div>
 </div>
 
+<!-- <iframe src="test.html" title="W3Schools Free Online Web Tutorials" style="width: 100%;height: 900px;"></iframe> -->
+
+<!-- slick update modal -->
+<div class="modal fade" id="whatsNewModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header bg-dark text-white rounded-top-4 align-items-center">
+        <h5 class="modal-title mb-0">📣 New Update on the Website</h5>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2 fs-6"><strong>What’s new in version 1.5:</strong></p>
+        <ul class="mb-3 list-unstyled d-flex align-items-start gap-2">
+          •
+          <img src="share.svg" alt="share icon" style="height: 18px; margin-top: 2px;">
+          Added <strong>“Share link”</strong> button so your friends can follow the same route.
+      </ul>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="hideUpdateModal">
+          <label class="form-check-label" for="hideUpdateModal">
+            Don’t show this again (until next update)
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0">
+        <button type="button" class="btn btn-dark w-100 py-2" data-bs-dismiss="modal">Awesome!</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- MAIN -->
   <main class="container">
     <h1 class="h4 my-3 text-center">Plan your trip</h1>
 
     <!-- SEARCH FORM -->
-    <form id="tripForm" class="mb-4">
+    <form id="tripForm" class="glass-card shadow-lg p-4 mb-4">
+
       <div class="mb-3">
         
 
@@ -89,7 +120,8 @@
     </form>
 
     <!-- RESULTS -->
-    <div id="result" class="d-none">
+    <div id="result" class="glass-card shadow-sm p-3 d-none">
+
 <h2 class="h5 mb-2 d-flex align-items-center">
   <span>
     Your journey (<span id="totalStops"></span> stops,
@@ -98,6 +130,12 @@
   </span>
   <img src="bookmark_outline.svg" id="saveIcon"
      alt="Save route" class="bookmark-btn ms-2" title="Save this route">
+     <!-- share-link button (hidden until a route is shown) -->
+     
+<img src="share.svg" id="shareIcon"
+     alt="Share route"
+     class="bookmark-btn ms-2 d-none"
+     title="Copy shareable link">
 
 </h2>
   
@@ -149,6 +187,7 @@
     <li>Click <img src="bookmark_outline.svg" style="height:14px"> to save a favourite trip.</li>
     <li>Open <strong>📚 Bookmarks</strong> (near footer) to reload or delete saved routes.</li>
     <li>On mobile, tap <strong>📍</strong> to auto-detect the nearest station.(no landmark yet)</li>
+    <li>Click <img src="share.svg" alt="Share" style="height: 14px; vertical-align: middle;"> to copy a shareable route link for friends.<br></li>
   </ul>
 </section>
 
@@ -167,7 +206,7 @@
   <footer class="bg-light text-center py-3 mt-5">
     
 
-  <small>&copy; 2025 — All rights reserved · v1.0</small>
+  <small>&copy; 2025 — All rights reserved · v1.5</small>
 </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
