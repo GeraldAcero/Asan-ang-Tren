@@ -1,3 +1,5 @@
+
+
 /* -------- FULL STATION LIST -------- */
 const stationData=[
   /* LRT-1 */
@@ -191,12 +193,32 @@ function refreshSaveIcon(){
   saveIcon.title = exists ? 'Route already saved'   : 'Save this route';
   return exists;
 }
+const shareIcon = document.getElementById('shareIcon');
+// ---- update popup version control ----
+const whatsNewModal = document.getElementById('whatsNewModal');
+const hideUpdateModal = document.getElementById('hideUpdateModal');
+const CURRENT_VERSION = '1.5';
 
 
 /* -------- INIT -------- */
 
 fill('station');
+(()=>{
+  const seen = localStorage.getItem('seenVersion');
+  if(seen !== CURRENT_VERSION){
+    const modal = new bootstrap.Modal(whatsNewModal);
+    modal.show();
+    whatsNewModal.addEventListener('hidden.bs.modal', () => {
+      if(hideUpdateModal.checked){
+        localStorage.setItem('seenVersion', CURRENT_VERSION);
+      }
+    }, { once: true });
+  }
+})();
 document.querySelectorAll('input[name="searchType"]').forEach(r=>r.onchange=e=>fill(e.target.value));
+// ---- show popup only once per version ----
+
+
 
 /* -------- TIPS ROTATION -------- */
 const tips=[
@@ -213,6 +235,7 @@ const tips=[
   "Click a station in the list to see its nearby landmarks.",
   "Click 📍 to auto-detect the nearest station.",
   "Click 🔖 to bookmark any trip for quick reuse.",
+  "Click 🔗 to copy a link you can share with friends.",
 
 
 
@@ -251,7 +274,20 @@ tripForm.onsubmit=e=>{
   lastRoute.start = s;   // update global
   lastRoute.end   = d;
   refreshSaveIcon();   // sync icon for this route
-              // keep for bookmark
+  // --- share-link setup ---
+const shareUrl =
+  `${location.origin}${location.pathname}?s=${encodeURIComponent(lastRoute.start)}&e=${encodeURIComponent(lastRoute.end)}`;
+
+shareIcon.classList.remove('d-none');   // reveal the button
+shareIcon.title = "Copy shareable link";
+shareIcon.onclick = () => {
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    const tt = bootstrap.Tooltip.getOrCreateInstance(
+      shareIcon,{title:'Link copied!',trigger:'manual'});
+    tt.show(); setTimeout(() => tt.hide(), 1500);
+  });
+};
+
 
 saveIcon.onclick = ()=>{
 
@@ -285,6 +321,41 @@ timeline.querySelectorAll('.timeline-item').forEach(it=>{
   result.scrollIntoView({behavior:'smooth'});
 };
 
+// --- auto-load ?s=Start&e=End links ---
+(()=>{
+  const p = new URLSearchParams(location.search);
+  const qsStart = p.get('s'), qsEnd = p.get('e');
+  if(qsStart && qsEnd){
+    startInput.value = qsStart;
+    endInput.value   = qsEnd;
+    byStation.checked = true;         // ensure correct mode
+    tripForm.requestSubmit();         // draw timeline automatically
+  }
+})();
+
+/* -------- AUTO-LOAD FROM URL AFTER HANDLERS ARE READY -------- */
+(()=>{
+  const p = new URLSearchParams(location.search);
+  const qsStart = p.get('s'), qsEnd = p.get('e');
+  if(!(qsStart && qsEnd)) return;    // nothing to do
+
+  // Pre-fill inputs with values from the URL
+  startInput.value = qsStart;
+  endInput.value   = qsEnd;
+
+  // Decide which search mode matches the parameters
+  const isStation = id2[qsStart] && id2[qsEnd];
+  byStation.checked  = isStation;
+  byLandmark.checked = !isStation;
+
+  // Update datalist to match the chosen mode
+  fill(isStation ? 'station' : 'landmark');
+
+  // Now that onsubmit is wired, trigger a fake submit to draw the route
+  tripForm.requestSubmit();
+})();
+
+
 function showLandmarks(station){
   const list = landmarkList;
   list.innerHTML = '';
@@ -301,7 +372,16 @@ function showLandmarks(station){
   }
 
   landmarkModalLabel.textContent = `Landmarks near ${station}`;
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('landmarkModal')).show();
+  const modalEl = document.getElementById('landmarkModal');
+
+/* move modal to <body> the first time it’s shown */
+if (modalEl.parentNode !== document.body) {
+  document.body.appendChild(modalEl);
+}
+
+bootstrap.Modal.getOrCreateInstance(modalEl).show();
+
+
 }
 
 locBtn.addEventListener('click',()=>{
@@ -378,5 +458,6 @@ ul.querySelectorAll('.bm-load').forEach(btn=>{
     };
   });
 }
+
 
 
