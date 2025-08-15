@@ -109,6 +109,7 @@ const landmarks={
   "Chinese General Hospital":"Abad Santos","La Loma Cemetery":"R. Papa",
   "Thai To Taoist Temple":"5th Avenue","SM City Grand Central":"Monumento","Bonifacio Monument":"Monumento",
   "Ayala Malls Cloverleaf":"Balintawak","Landers Superstore":"Balintawak","Muñoz Market":"Fernando Poe Jr.",
+  "Metro Point Mall":"EDSA","Adventist Medical Center Manila":"Gil Puyat","Padre Burgos Elementary School":"Libertad","Pasay City General Hospital":"Libertad",
 
   /* LRT-2 */
   "Isetann Cinerama":"Recto","Raon Shopping Center":"Recto","QQ Mall":"Recto","Cartimar":"Recto","Arranque Market":"Recto",
@@ -197,26 +198,69 @@ const shareIcon = document.getElementById('shareIcon');
 // ---- update popup version control ----
 const whatsNewModal = document.getElementById('whatsNewModal');
 const hideUpdateModal = document.getElementById('hideUpdateModal');
-const CURRENT_VERSION = '1.5';
+const CURRENT_VERSION = '2.0';
+
+// --- share-route elements ---
+const shareNameModal = document.getElementById('shareNameModal');
+const shareYourName  = document.getElementById('shareYourName');
+const shareCopyBtn   = document.getElementById('shareCopyBtn');
+const sharedByModal  = document.getElementById('sharedByModal');
+const sharedByTitle  = document.getElementById('sharedByTitle');
+const sharedByBody   = document.getElementById('sharedByBody');
+
+let sharedByShown = false;
+let pendingSharedBy = false;
+let pendingDelIdx = null;
+// --- delete confirmation ---
+const confirmDelModal = document.getElementById('confirmDelModal');
+const confirmDelBtn   = document.getElementById('confirmDelBtn');
+
+
+const addBmModal   = document.getElementById('addBmModal');
+const bmNameInput  = document.getElementById('bmNameInput');
+const bmSaveBtn    = document.getElementById('bmSaveBtn');
 
 
 /* -------- INIT -------- */
+const qs = new URLSearchParams(location.search);
+const shareSender = qs.get('n');   // name of friend
 
 fill('station');
 (()=>{
-  const seen = localStorage.getItem('seenVersion');
-  if(seen !== CURRENT_VERSION){
-    const modal = new bootstrap.Modal(whatsNewModal);
-    modal.show();
-    whatsNewModal.addEventListener('hidden.bs.modal', () => {
-      if(hideUpdateModal.checked){
-        localStorage.setItem('seenVersion', CURRENT_VERSION);
-      }
-    }, { once: true });
-  }
+  const qs          = new URLSearchParams(location.search);
+const shareSender = qs.get('n');          // friend’s name if any
+const seenVersion = localStorage.getItem('seenVersion');
+
+if(seenVersion !== CURRENT_VERSION){      // show 📣 update first
+  pendingSharedBy = !!shareSender;        // defer friend popup
+  const upd = bootstrap.Modal.getOrCreateInstance(whatsNewModal);
+  upd.show();
+  whatsNewModal.addEventListener('hidden.bs.modal', () => {
+    if(hideUpdateModal.checked){
+      localStorage.setItem('seenVersion', CURRENT_VERSION);
+    }
+    if(pendingSharedBy) showSharedBy(shareSender);
+  }, { once:true });
+}else if(shareSender){
+  showSharedBy(shareSender);              // show immediately
+}
+
 })();
 document.querySelectorAll('input[name="searchType"]').forEach(r=>r.onchange=e=>fill(e.target.value));
 // ---- show popup only once per version ----
+
+function showSharedBy(name){
+  if(sharedByShown) return;          // never show twice
+  sharedByTitle.textContent = `${name} shared this route with you`;
+  sharedByBody.innerHTML    = `<p class="mb-0">Happy commuting!</p>`;
+  bootstrap.Modal.getOrCreateInstance(sharedByModal).show();
+  sharedByShown = true;
+
+  /* drop &n=... from the URL so future actions don’t trigger again */
+  const url = new URL(location);
+  url.searchParams.delete('n');
+  history.replaceState(null, '', url.pathname + url.search);
+}
 
 
 
@@ -280,30 +324,49 @@ const shareUrl =
 
 shareIcon.classList.remove('d-none');   // reveal the button
 shareIcon.title = "Copy shareable link";
-shareIcon.onclick = () => {
-  navigator.clipboard.writeText(shareUrl).then(() => {
-    const tt = bootstrap.Tooltip.getOrCreateInstance(
-      shareIcon,{title:'Link copied!',trigger:'manual'});
-    tt.show(); setTimeout(() => tt.hide(), 1500);
-  });
+shareIcon.onclick = ()=>{
+  shareYourName.value = localStorage.getItem('shareName') || '';
+  bootstrap.Modal.getOrCreateInstance(shareNameModal).show();
+};
+
+shareCopyBtn.onclick = ()=>{
+  const raw = shareYourName.value.trim();
+const name = raw || 'a commuter';
+localStorage.setItem('shareName', raw);   // store only what user typed
+
+const shareUrl =
+  `${location.origin}${location.pathname}?s=${encodeURIComponent(lastRoute.start)}&e=${encodeURIComponent(lastRoute.end)}&n=${encodeURIComponent(name)}`;
+
+navigator.clipboard.writeText(shareUrl).then(()=>{
+  bootstrap.Modal.getInstance(shareNameModal).hide();
+});
+
 };
 
 
-saveIcon.onclick = ()=>{
 
-  if(refreshSaveIcon()){            // already exists
+
+saveIcon.onclick = ()=>{
+  if(refreshSaveIcon()){              // already exists
     const tt = bootstrap.Tooltip.getOrCreateInstance(saveIcon,{title:'Already in bookmarks',trigger:'manual'});
     tt.show(); setTimeout(()=>tt.hide(),1500);
     return;
   }
-  const name = prompt('Bookmark name:', `${lastRoute.start} ➜ ${lastRoute.end}`);
-  if(!name) return;
+  bmNameInput.value = `${lastRoute.start} ➜ ${lastRoute.end}`;
+  bootstrap.Modal.getOrCreateInstance(addBmModal).show();
+};
+
+/* save-button inside modal */
+bmSaveBtn.onclick = ()=>{
+  const name = bmNameInput.value.trim() || `${lastRoute.start} ➜ ${lastRoute.end}`;
   const list = loadBookmarks();
   list.push({...lastRoute,name});
   saveBookmarks(list);
+  bootstrap.Modal.getInstance(addBmModal).hide();
   refreshSaveIcon();
   alert('Saved!');
 };
+
    // sync icon for this route
 
 
@@ -319,6 +382,9 @@ timeline.querySelectorAll('.timeline-item').forEach(it=>{
   result.classList.remove('d-none');
   rotateTip();
   result.scrollIntoView({behavior:'smooth'});
+
+
+
 };
 
 // --- auto-load ?s=Start&e=End links ---
@@ -366,9 +432,37 @@ function showLandmarks(station){
   if(!nearby.length){
     list.innerHTML = '<li class="list-group-item">No landmarks recorded.</li>';
   }else{
-    nearby.forEach(name=>{
-      list.insertAdjacentHTML('beforeend',`<li class="list-group-item">${name}</li>`);
-    });
+    nearby.forEach((name, idx)=>{
+  const info  = landmarkInfo[station]?.[name] || {};
+  const walk  = info.walk ? `<br><small class="text-muted">${info.walk}</small>` : '';
+
+  const hasMap = !!info.map;
+ const mapBtn = hasMap ? `
+    <button class="btn btn-sm btn-outline-secondary map-btn"
+            data-bs-toggle="collapse" data-bs-target="#map-${idx}">
+      See map
+    </button>` : '';
+
+
+  const mapDiv = hasMap ? `
+      <div id="map-${idx}" class="collapse mt-2">
+        <div class="ratio ratio-4x3 landmark-map-wrap">
+          ${info.map}
+        </div>
+      </div>` : '';
+
+  list.insertAdjacentHTML('beforeend', `
+    <li class="list-group-item">
+      <div class="landmark-row">
+        <span>${name}${walk}</span>
+        ${mapBtn}
+      </div>
+      ${mapDiv}
+    </li>`);
+});
+
+
+
   }
 
   landmarkModalLabel.textContent = `Landmarks near ${station}`;
@@ -449,15 +543,24 @@ ul.querySelectorAll('.bm-load').forEach(btn=>{
 });
 
   // delete route
-  ul.querySelectorAll('.bm-del').forEach(btn=>{
-    btn.onclick = ()=>{
-      const arr = loadBookmarks();
-      arr.splice(+btn.dataset.idx,1);
-      saveBookmarks(arr);
-      renderBookmarks();
-    };
-  });
+  // delete route
+ul.querySelectorAll('.bm-del').forEach(btn=>{
+  btn.onclick = ()=>{
+    pendingDelIdx = +btn.dataset.idx;
+    bootstrap.Modal.getOrCreateInstance(confirmDelModal).show();
+  };
+});
+
 }
 
+confirmDelBtn.onclick = ()=>{
+  if(pendingDelIdx===null) return;
+  const arr = loadBookmarks();
+  arr.splice(pendingDelIdx,1);
+  saveBookmarks(arr);
+  pendingDelIdx = null;
+  bootstrap.Modal.getInstance(confirmDelModal).hide();
+  renderBookmarks();                 // refresh list
+};
 
 

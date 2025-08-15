@@ -18,6 +18,9 @@ body{
   --glass-bg:rgba(33,37,41,.65);
   --glass-border:rgba(255,255,255,.12);
 }
+:root[data-bs-theme='dark'] .text-muted{
+  color: #b5bac1 !important;
+}
 
 /* --- glassmorphism card --- */
 .glass-card{
@@ -72,4 +75,60 @@ footer.bg-dark{background:#333333!important;color:#fff;}
 .theme-btn,
 .bookmark-btn{height:24px;width:24px;cursor:pointer}
 @media(max-width:576px){.theme-btn,.bookmark-btn{height:20px;width:20px}}
+
+/* --- Landmarks modal styling --- */
+.bg-landmark{
+  background:linear-gradient(135deg,#20c997,#0d6efd);
+}
+
+#landmarkList li{
+  padding:.65rem 1rem;
+  border-bottom:1px solid var(--glass-border);
+}
+#landmarkList li:last-child{border-bottom:none;}
+#landmarkList li:hover{
+  background:rgba(0,0,0,.04);
+}
+
+:root[data-bs-theme='dark'] #landmarkList li:hover{
+  background:rgba(255,255,255,.04);
+}
+/* --- landmark row layout: text on the left, fixed button on the right --- */
+#landmarkList .landmark-row{
+  display:grid;
+  grid-template-columns: 1fr 96px;   /* 1 fr text + 96 px button */
+  gap:.25rem 1rem;                   /* small vertical / horizontal gaps */
+}
+
+/* text column (auto-wraps but never pushes the button) */
+#landmarkList .landmark-row span{
+  min-width:0;           /* allow wrapping inside the grid cell */
+  word-break:break-word; /* long landmark names wrap nicely     */
+}
+
+/* button column (identical width, right-aligned) */
+#landmarkList .landmark-row .map-btn{
+  width:96px;            /* fixed – match grid column */
+  justify-self:end;      /* flush right inside the cell */
+  white-space:nowrap;
+  padding:.25rem .5rem;  /* compact height like before */
+}
+/* fixed width for bookmark delete & share-name buttons */
+#bmList .bm-del{width:40px;text-align:center}
+/* gradient headers that match site palette */
+.bg-bm     {background:linear-gradient(135deg,#0d6efd,#198754);} /* blue→green */
+.bg-share  {background:linear-gradient(135deg,#0d6efd,#6610f2);} /* blue→violet */
+
+/* ---------- PALETTE MODAL HEADERS (no gradients) ---------- */
+.modal-head{
+  background:var(--glass-bg);
+  color:var(--bs-body-color);
+}
+:root[data-bs-theme='dark'] .modal-head{
+  background:#1f1f1f;      /* dark solid */
+  color:#fff;
+}
+
+/* bookmark + share buttons (fixed width) */
+#landmarkList .map-btn, .bm-del, #copyBmBtn{width:96px}
 

@@ -30,19 +30,40 @@
   </nav>
 
 <!-- bookmarks list -->
+<!-- modern Bookmarks modal -->
 <div class="modal fade" id="bmModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">My Bookmarks</h5>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content glass-card shadow-lg border-0 rounded-4">
+      <div class="modal-header modal-head rounded-top-4 align-items-center">
+        📚
+        <h5 class="modal-title mb-0">My Bookmarks</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-        <ul id="bmList" class="list-group"></ul>
+      <div class="modal-body p-0">
+        <ul id="bmList" class="list-group list-group-flush mb-0"></ul>
       </div>
     </div>
   </div>
 </div>
+
+<!-- confirm-delete modal -->
+<div class="modal fade " id="confirmDelModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card shadow border-0">
+      <div class="modal-header bg-danger text-white rounded-top-4">
+        <h6 class="modal-title mb-0">Delete bookmark?</h6>
+      </div>
+      <div class="modal-body">
+        This action cannot be undone.
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDelBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- <iframe src="test.html" title="W3Schools Free Online Web Tutorials" style="width: 100%;height: 900px;"></iframe> -->
 
@@ -50,17 +71,25 @@
 <div class="modal fade" id="whatsNewModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 rounded-4 shadow-lg">
-      <div class="modal-header bg-dark text-white rounded-top-4 align-items-center">
+      <div class="modal-header bg-bm text-white rounded-top-4 align-items-center">
         <h5 class="modal-title mb-0">📣 New Update on the Website</h5>
       </div>
       <div class="modal-body">
-        <p class="mb-2 fs-6"><strong>What’s new in version 1.5:</strong></p>
-        <ul class="mb-3 list-unstyled d-flex align-items-start gap-2">
+        <p class="mb-2 fs-6"><strong>What’s new in version 2.0:</strong></p>
+      <ul class="mb-3 list-unstyled d-flex align-items-start gap-2">
+          • 👣 Added <strong>walk-time</strong> + <strong>map</strong> for each landmark
+      </ul>
+      <ul class="mb-3 list-unstyled d-flex align-items-start gap-2">
           •
           <img src="share.svg" alt="share icon" style="height: 18px; margin-top: 2px;">
-          Added <strong>“Share link”</strong> button so your friends can follow the same route.
+          Updated <strong>“Share link”</strong> now carries your name so friends know who sent it.
       </ul>
-
+      <ul class="mb-3 list-unstyled d-flex align-items-start gap-2">
+          • 📚 Delete-bookmark now asks for confirmation.
+      </ul>
+      <ul class="mb-3 list-unstyled d-flex align-items-start gap-2">
+          • 🐞 Several UI polish fixes & bug corrections
+      </ul>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" id="hideUpdateModal">
           <label class="form-check-label" for="hideUpdateModal">
@@ -154,26 +183,29 @@
         ⏰ Hours — LRT-1 04:30-22:00 (21:30 wknd) · LRT-2 05:00-22:30 · MRT-3 04:59-22:10 (22:01 wknd)
       </div>
       
-      <!-- Landmark pop-up -->
+<!-- modern Landmarks modal -->
 <div class="modal fade" id="landmarkModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="landmarkModalLabel">Nearby Landmarks</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal-dialog modal-dialog-centered modal-md ">
+    <div class="modal-content glass-card shadow-lg border-0 rounded-4 ">
+      <div class="modal-header bg-landmark text-white rounded-top-4 align-items-center ">
+        <!-- <img src="pin.svg" alt="Pin" style="height:20px;margin-right:8px"> -->📍
+        <h5 class="modal-title mb-0 " id="landmarkModalLabel" >Nearby Landmarks</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-        <ul id="landmarkList" class="list-group list-group-flush mb-0"></ul>
+
+      <div class="modal-body p-0">
+        <ul id="landmarkList" class="list-unstyled mb-0"></ul>
       </div>
     </div>
   </div>
 </div>
 
 
+
       <ul id="timeline" class="list-group mb-4"></ul>
       <div id="commuterTip" class="alert alert-secondary small text-center"></div>
     </div>
-
+    <br>
     <section class="card card-body mb-4">
   <h5 class="card-title">What is “Asan ang Tren?”</h5>
   <p class="card-text">
@@ -187,7 +219,9 @@
     <li>Click <img src="bookmark_outline.svg" style="height:14px"> to save a favourite trip.</li>
     <li>Open <strong>📚 Bookmarks</strong> (near footer) to reload or delete saved routes.</li>
     <li>On mobile, tap <strong>📍</strong> to auto-detect the nearest station.(no landmark yet)</li>
-    <li>Click <img src="share.svg" alt="Share" style="height: 14px; vertical-align: middle;"> to copy a shareable route link for friends.<br></li>
+    <li>Click <img src="share.svg" alt="Share" style="height: 14px; vertical-align: middle;"> to copy a shareable route link for friends(now shows your name)<br>
+    <li>🚉 Every station now lists <strong>👣 walk-time</strong> and a <strong>🗺️ map</strong> for nearby landmarks.</li>
+    </li>
   </ul>
 </section>
 
@@ -206,10 +240,66 @@
   <footer class="bg-light text-center py-3 mt-5">
     
 
-  <small>&copy; 2025 — All rights reserved · v1.5</small>
+  <small>&copy; 2025 — All rights reserved · v2.0</small>
 </footer>
+
+<!-- ask-name modal -->
+<div class="modal fade " id="shareNameModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card shadow border-0">
+      <div class="modal-header modal-head rounded-top-4">
+        <h6 class="modal-title mb-0">Share route with friends</h6>
+      </div>
+      <div class="modal-body">
+        <label class="form-label small">Your name (so they know who sent it)</label>
+        <input type="text" class="form-control" id="shareYourName" placeholder="e.g., Pedro">
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-primary w-100" id="shareCopyBtn">Copy Link</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- add-bookmark modal -->
+<div class="modal fade" id="addBmModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card shadow border-0">
+      <div class="modal-header modal-head rounded-top-4">
+        <h6 class="modal-title mb-0">Save this route</h6>
+      </div>
+      <div class="modal-body">
+        <label class="form-label small">Bookmark name</label>
+        <input type="text" class="form-control" id="bmNameInput"
+               placeholder="e.g., Home ➜ Work">
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-primary w-100" id="bmSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- shared-by modal -->
+<div class="modal fade" id="sharedByModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-card shadow border-0">
+      <div class="modal-header bg-success text-white rounded-top-4">
+        <h6 class="modal-title mb-0" id="sharedByTitle">Route shared with you</h6>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="sharedByBody"></div>
+    </div>
+  </div>
+</div>
+
+
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
+<script src="landmark-data.js"></script>
 
 
 
