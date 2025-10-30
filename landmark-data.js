@@ -4,6 +4,100 @@
    Add more entries following the same pattern. */
 const landmarkInfo = {
 
+  "Dr. Santos": {
+    "SM City Sucat": {
+      walk: "👣 2 min (150 m) via Dr. Santos Avenue",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.985!3d14.520!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sSM%20City%20Sucat%2C%20Dr%20Santos%20Ave%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.520!2d120.985!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sDr%20Santos%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.520!2d120.985!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "Olivarez College": {
+      walk: "👣 5 min (400 m) via Dr. Santos Avenue",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.985!3d14.520!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sOlivarez%20College%2C%20Dr%20Santos%20Ave%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.520!2d120.985!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sDr%20Santos%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.520!2d120.985!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "Olivarez General Hospital": {
+      walk: "👣 6 min (500 m) via Dr. Santos Avenue",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.985!3d14.520!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sOlivarez%20General%20Hospital%2C%20Dr%20Santos%20Ave%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.520!2d120.985!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sDr%20Santos%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.520!2d120.985!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    }
+  },
+
+  "MIA Road": {
+    "Ayala Malls Manila Bay": {
+      walk: "👣 12 min (950 m) via Roxas Boulevard",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.990!3d14.525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sAyala%20Malls%20Manila%20Bay%2C%20Roxas%20Blvd%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.525!2d120.990!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sMIA%20Road%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.525!2d120.990!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "Palacio de Memoria": {
+      walk: "👣 8 min (600 m) via Roxas Boulevard",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.990!3d14.525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sPalacio%20de%20Memoria%2C%20Roxas%20Blvd%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.525!2d120.990!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sMIA%20Road%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.525!2d120.990!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "Martyrs' Memorial United Methodist Church": {
+      walk: "👣 6 min (420 m) via Roxas Boulevard",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.990!3d14.525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sMartyrs%20Memorial%20United%20Methodist%20Church%2C%20Roxas%20Blvd%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.525!2d120.990!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sMIA%20Road%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.525!2d120.990!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    }
+  },
+
+  "PITX": {
+    "PITX Terminal": {
+      walk: "👣 1 min (50 m) - directly linked to station",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.992!3d14.530!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sPITX%20Terminal%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.530!2d120.992!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sPITX%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.530!2d120.992!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "Hotel Sogo Macapagal": {
+      walk: "👣 3 min (200 m) via Macapagal Boulevard",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.992!3d14.530!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sHotel%20Sogo%20Macapagal%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.530!2d120.992!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sPITX%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.530!2d120.992!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "Parañaque Cathedral": {
+      walk: "👣 12 min (1 km) via Macapagal Boulevard",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.992!3d14.530!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sParañaque%20Cathedral%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.530!2d120.992!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sPITX%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.530!2d120.992!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    }
+  },
+
+  "Ninoy Aquino Avenue": {
+    "Global Airport Business Park": {
+      walk: "👣 5 min (300 m) via Ninoy Aquino Avenue",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.994!3d14.532!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sGlobal%20Airport%20Business%20Park%2C%20Ninoy%20Aquino%20Ave%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.532!2d120.994!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sNinoy%20Aquino%20Avenue%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.532!2d120.994!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "NAIA Terminal 1": {
+      walk: "👣 25 min (2.1 km) via Ninoy Aquino Avenue",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.994!3d14.532!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sNAIA%20Terminal%201%2C%20Ninoy%20Aquino%20Ave%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.532!2d120.994!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sNinoy%20Aquino%20Avenue%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.532!2d120.994!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "Duty Free Philippines": {
+      walk: "👣 8 min (600 m) via Ninoy Aquino Avenue",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.994!3d14.532!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sDuty%20Free%20Philippines%2C%20Ninoy%20Aquino%20Ave%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.532!2d120.994!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sNinoy%20Aquino%20Avenue%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.532!2d120.994!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    }
+  },
+
+  "Redemptorist-Aseana": {
+    "Baclaran Church": {
+      walk: "👣 3 min (200 m) via footbridge",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.996!3d14.533!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sBaclaran%20Church%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.533!2d120.996!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sRedemptorist-Aseana%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.533!2d120.996!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "S&R Membership Shopping Aseana": {
+      walk: "👣 5 min (350 m) via Aseana Avenue",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.996!3d14.533!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sS%26R%20Membership%20Shopping%20Aseana%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.533!2d120.996!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sRedemptorist-Aseana%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.533!2d120.996!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "Seaside Market Baclaran": {
+      walk: "👣 4 min (250 m) via footbridge",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d120.996!3d14.533!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sSeaside%20Market%20Baclaran%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.533!2d120.996!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sRedemptorist-Aseana%20LRT%20Station%2C%20Parañaque%2C%20Metro%20Manila!3m2!1d14.533!2d120.996!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    }
+  },
+
+  "Fernando Poe Jr.": {
+    "WalterMart North EDSA": {
+      walk: "👣 1 min (50 m) - right beside the station",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d121.013!3d14.669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sWalterMart%20North%20EDSA%2C%20Quezon%20City%2C%20Metro%20Manila!3m2!1d14.669!2d121.013!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sFernando%20Poe%20Jr%20LRT%20Station%2C%20Quezon%20City%2C%20Metro%20Manila!3m2!1d14.669!2d121.013!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "SM North EDSA": {
+      walk: "👣 12 min (1 km) via EDSA",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d121.013!3d14.669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sSM%20North%20EDSA%2C%20Quezon%20City%2C%20Metro%20Manila!3m2!1d14.669!2d121.013!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sFernando%20Poe%20Jr%20LRT%20Station%2C%20Quezon%20City%2C%20Metro%20Manila!3m2!1d14.669!2d121.013!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "TriNoma": {
+      walk: "👣 18 min (1.5 km) via EDSA",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d121.013!3d14.669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sTriNoma%2C%20Quezon%20City%2C%20Metro%20Manila!3m2!1d14.669!2d121.013!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sFernando%20Poe%20Jr%20LRT%20Station%2C%20Quezon%20City%2C%20Metro%20Manila!3m2!1d14.669!2d121.013!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    },
+    "S&R Congressional": {
+      walk: "👣 8 min (600 m) via Congressional Avenue",
+      map: `<iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3861.2345678901234!2d121.013!3d14.669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x3397b5d45416d929%3A0x6da63666b2c9009b!2sS%26R%20Congressional%2C%20Quezon%20City%2C%20Metro%20Manila!3m2!1d14.669!2d121.013!4m5!1s0x3397b5d6e17e7a1f%3A0x22ca940103c8a53e!2sFernando%20Poe%20Jr%20LRT%20Station%2C%20Quezon%20City%2C%20Metro%20Manila!3m2!1d14.669!2d121.013!5e1!3m2!1sen!2sph!4v1749337364687!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+    }
+  },
+
   "5th Avenue": {
       "Thai To Taoist Temple":{
         walk: "3 min (200 m) via Susano St and Rizal Ave Ext/R-9",

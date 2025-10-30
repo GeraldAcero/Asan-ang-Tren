@@ -1,9 +1,276 @@
 
 
+/* -------- ENHANCED FARE CALCULATION SYSTEM -------- */
+
+// User preferences storage
+const FARE_PREFS = {
+  ticketType: 'SVC',
+  passengerType: 'Regular',
+  showUnifiedFare: false,
+  showComparison: true
+};
+
+// Load user preferences from localStorage
+function loadFarePreferences() {
+  const saved = localStorage.getItem('farePreferences');
+  if (saved) {
+    Object.assign(FARE_PREFS, JSON.parse(saved));
+  }
+}
+
+// Save user preferences to localStorage
+function saveFarePreferences() {
+  localStorage.setItem('farePreferences', JSON.stringify(FARE_PREFS));
+}
+
+// Calculate distance between two coordinates using Haversine formula
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c; // Distance in kilometers
+}
+
+// Calculate unified fare (Beep 2.0 simulation)
+function calculateUnifiedFare(segments) {
+  let totalDistance = 0;
+  
+  segments.forEach(seg => {
+    const fromCoords = stationCoords[seg.from];
+    const toCoords = stationCoords[seg.to];
+    
+    if (fromCoords && toCoords) {
+      const distance = calculateDistance(
+        fromCoords[0], fromCoords[1],
+        toCoords[0], toCoords[1]
+      );
+      totalDistance += distance;
+    }
+  });
+  
+  // Unified fare formula: ₱15 base + ₱1.50/km
+  const baseFare = 15;
+  const perKmFare = 1.50;
+  return Math.round(baseFare + (totalDistance * perKmFare));
+}
+
+// Enhanced fare calculation with all features
+function computeFare(segments, { ticketType = 'SVC', discounted = false } = {}) {
+  let total = 0;
+  const breakdown = [];
+  const transfers = [];
+  const warnings = [];
+
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
+    const line = seg.line;
+    const from = seg.from;
+    const to = seg.to;
+
+    // Skip if from and to are the same
+    if (from === to) {
+      console.warn(`Skipping same-station segment: ${line} ${from}→${to}`);
+      continue;
+    }
+
+    const bucket = discounted ? 'DISCOUNT' : ticketType;
+    const table = FARE[line]?.[bucket];
+
+    if (!table?.[from]?.[to]) {
+      console.warn(`Fare not found for ${line} ${from}→${to} (${bucket})`);
+      // Try to find reverse fare
+      if (table?.[to]?.[from]) {
+        const fare = table[to][from];
+        total += fare;
+        breakdown.push({ line, ticketType: bucket, from, to, fare });
+        console.log(`Using reverse fare for ${line} ${from}→${to}: ₱${fare}`);
+      } else {
+        console.error(`No fare available for ${line} ${from}→${to} (${bucket})`);
+        warnings.push(`No ${bucket} fare available for ${line} ${from}→${to}`);
+        continue;
+      }
+    } else {
+      const fare = table[from][to];
+      total += fare;
+      breakdown.push({ line, ticketType: bucket, from, to, fare });
+    }
+
+    // Track transfers
+    if (i < segments.length - 1) {
+      const nextSeg = segments[i + 1];
+      if (nextSeg.line !== line) {
+        transfers.push(`${to} ↔ ${nextSeg.from}`);
+      }
+    }
+  }
+
+  return { 
+    totalFare: total, 
+    currency: 'PHP', 
+    breakdown, 
+    transfers, 
+    warnings,
+    unifiedFare: calculateUnifiedFare(segments)
+  };
+}
+
+// Calculate all fare variants for comparison
+function calculateAllFareVariants(segments) {
+  const variants = {
+    SJT: computeFare(segments, { ticketType: 'SJT', discounted: false }),
+    SVC: computeFare(segments, { ticketType: 'SVC', discounted: false }),
+    DISCOUNT: computeFare(segments, { ticketType: 'SVC', discounted: true })
+  };
+  
+  // Find cheapest option
+  const fares = [variants.SJT.totalFare, variants.SVC.totalFare, variants.DISCOUNT.totalFare];
+  const minFare = Math.min(...fares);
+  
+  return {
+    variants,
+    cheapest: minFare,
+    savings: {
+      SJT: variants.SJT.totalFare - minFare,
+      SVC: variants.SVC.totalFare - minFare,
+      DISCOUNT: variants.DISCOUNT.totalFare - minFare
+    }
+  };
+}
+
+// Fare History Management
+function loadFareHistory() {
+  const saved = localStorage.getItem('fareHistory');
+  return saved ? JSON.parse(saved) : [];
+}
+
+function saveFareHistory(history) {
+  localStorage.setItem('fareHistory', JSON.stringify(history));
+}
+
+function addToFareHistory(start, end, fare, ticketType, discounted, segments) {
+  const history = loadFareHistory();
+  const newEntry = {
+    date: new Date().toISOString().split('T')[0],
+    time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+    start,
+    end,
+    fare,
+    ticketType,
+    discounted,
+    segments: segments.length,
+    transfers: segments.length - 1
+  };
+  
+  // Add to beginning and limit to 10 entries
+  history.unshift(newEntry);
+  if (history.length > 10) {
+    history.splice(10);
+  }
+  
+  saveFareHistory(history);
+  return history;
+}
+
+function getFareHistoryStats(history) {
+  if (history.length === 0) return null;
+  
+  const totalSpent = history.reduce((sum, entry) => sum + entry.fare, 0);
+  const avgFare = Math.round(totalSpent / history.length);
+  const thisMonth = history.filter(entry => {
+    const entryDate = new Date(entry.date);
+    const now = new Date();
+    return entryDate.getMonth() === now.getMonth() && entryDate.getFullYear() === now.getFullYear();
+  });
+  const monthlySpent = thisMonth.reduce((sum, entry) => sum + entry.fare, 0);
+  
+  return {
+    totalSpent,
+    avgFare,
+    monthlySpent,
+    totalTrips: history.length,
+    monthlyTrips: thisMonth.length
+  };
+}
+
+function buildFareSegments(path) {
+  const segments = [];
+  
+  if (path.length < 2) {
+    console.warn('Path too short for fare calculation:', path);
+    return segments;
+  }
+
+  // Group consecutive stations by line
+  const lineGroups = [];
+  let currentGroup = null;
+
+  for (let i = 0; i < path.length; i++) {
+    const station = path[i];
+    const stationInfo = id2[station];
+    
+    if (!stationInfo) {
+      console.warn('Station info not found for:', station);
+      continue;
+    }
+
+    if (!currentGroup || currentGroup.line !== stationInfo.line) {
+      // Start new line group
+      if (currentGroup) {
+        lineGroups.push(currentGroup);
+      }
+      currentGroup = {
+        line: stationInfo.line,
+        stations: [station]
+      };
+    } else {
+      // Add to current group
+      currentGroup.stations.push(station);
+    }
+  }
+
+  // Add the last group
+  if (currentGroup) {
+    lineGroups.push(currentGroup);
+  }
+
+  console.log('Line groups:', lineGroups);
+
+  // Create segments from line groups
+  lineGroups.forEach(group => {
+    if (group.stations.length >= 2) {
+      // Multiple stations on same line - create segment from first to last
+      segments.push({
+        line: group.line,
+        from: group.stations[0],
+        to: group.stations[group.stations.length - 1]
+      });
+      console.log(`Added segment: ${group.line} ${group.stations[0]} → ${group.stations[group.stations.length - 1]}`);
+    } else if (group.stations.length === 1 && lineGroups.length === 2) {
+      // Direct transfer between two different lines - no train fare
+      console.log(`Direct transfer detected: ${group.line} ${group.stations[0]} - no train fare`);
+    } else if (group.stations.length === 1) {
+      // Single station - this might be a transfer point, skip for now
+      console.log(`Skipping single station group: ${group.line} ${group.stations[0]}`);
+    }
+  });
+
+  console.log('Total segments created:', segments.length);
+  return segments;
+}
+
 /* -------- FULL STATION LIST -------- */
 const stationData=[
   /* LRT-1 */
-  {id:'Baclaran',line:'LRT-1',n:['EDSA']},
+  {id:'Dr. Santos',line:'LRT-1',n:['MIA Road']},
+  {id:'MIA Road',line:'LRT-1',n:['Dr. Santos','PITX']},
+  {id:'PITX',line:'LRT-1',n:['MIA Road','Ninoy Aquino Avenue']},
+  {id:'Ninoy Aquino Avenue',line:'LRT-1',n:['PITX','Redemptorist-Aseana']},
+  {id:'Redemptorist-Aseana',line:'LRT-1',n:['Ninoy Aquino Avenue','Baclaran']},
+  {id:'Baclaran',line:'LRT-1',n:['Redemptorist-Aseana','EDSA']},
   {id:'EDSA',line:'LRT-1',n:['Baclaran','Libertad'],t:[{to:'Taft Avenue',line:'MRT-3'}]},
   {id:'Libertad',line:'LRT-1',n:['EDSA','Gil Puyat']},
   {id:'Gil Puyat',line:'LRT-1',n:['Libertad','Vito Cruz']},
@@ -57,6 +324,8 @@ const stationData=[
 
 /* lat-lon for each station (approx.) */
 const stationCoords = {
+  "Dr. Santos":[14.520,120.985], "MIA Road":[14.525,120.990], "PITX":[14.530,120.992], 
+  "Ninoy Aquino Avenue":[14.532,120.994], "Redemptorist-Aseana":[14.533,120.996],
   "Baclaran":[14.534,120.997], "EDSA":[14.537,120.994], "Libertad":[14.545,120.997],
   "Gil Puyat":[14.554,120.999], "Vito Cruz":[14.563,120.996], "Quirino":[14.571,120.993],
   "Pedro Gil":[14.579,120.991], "UN Avenue":[14.586,120.986], "Central Terminal":[14.594,120.982],
@@ -99,6 +368,11 @@ function nearestStation(lat,lon){
 /* -------- FULL LANDMARK MAP -------- */
 const landmarks={
   /* LRT-1 */
+  "SM City Sucat":"Dr. Santos","Olivarez College":"Dr. Santos","Olivarez General Hospital":"Dr. Santos","Premier Medical Center":"Dr. Santos","San Dionisio Barangay Hall":"Dr. Santos",
+  "Ayala Malls Manila Bay":"MIA Road","Palacio de Memoria":"MIA Road","Martyrs' Memorial United Methodist Church":"MIA Road","SM MoA Arena":"MIA Road",
+  "PITX Terminal":"PITX","Asia World":"PITX","Hotel Sogo Macapagal":"PITX","Parañaque Cathedral":"PITX",
+  "Global Airport Business Park":"Ninoy Aquino Avenue","F2 Logistics":"Ninoy Aquino Avenue","NAIA Terminal 1":"Ninoy Aquino Avenue","Duty Free Philippines":"Ninoy Aquino Avenue","Fiestamall":"Ninoy Aquino Avenue","S&R Membership Shopping Parañaque":"Ninoy Aquino Avenue","Parañaque Science High School":"Ninoy Aquino Avenue","Santo Niño National High School":"Ninoy Aquino Avenue","La Huerta Elementary":"Ninoy Aquino Avenue","PUP Parañaque":"Ninoy Aquino Avenue",
+  "Baclaran Church":"Redemptorist-Aseana","Redemptorist Church":"Redemptorist-Aseana","S&R Membership Shopping Aseana":"Redemptorist-Aseana","Seaside Market Baclaran":"Redemptorist-Aseana","DFA Consular Offices":"Redemptorist-Aseana",
   "Baclaran Market":"Baclaran","SM Mall of Asia":"Baclaran","NAIA":"Baclaran",
   "World Trade Center":"Gil Puyat","De La Salle University":"Vito Cruz","Cultural Center of the Philippines":"Vito Cruz","Rizal Memorial":"Vito Cruz",
   "Manila Zoo":"Quirino","Manila Baywalk":"Quirino","Robinsons Place Manila":"Pedro Gil","UP Manila":"Pedro Gil",
@@ -108,7 +382,7 @@ const landmarks={
   "Dangwa Flower Market":"Tayuman","SM City San Lazaro":"Tayuman","Manila North Cemetery":"Blumentritt",
   "Chinese General Hospital":"Abad Santos","La Loma Cemetery":"R. Papa",
   "Thai To Taoist Temple":"5th Avenue","SM City Grand Central":"Monumento","Bonifacio Monument":"Monumento",
-  "Ayala Malls Cloverleaf":"Balintawak","Landers Superstore":"Balintawak","Muñoz Market":"Fernando Poe Jr.",
+  "Ayala Malls Cloverleaf":"Balintawak","Landers Superstore":"Balintawak","Muñoz Market":"Fernando Poe Jr.","WalterMart North EDSA":"Fernando Poe Jr.","SM North EDSA":"Fernando Poe Jr.","TriNoma":"Fernando Poe Jr.","S&R Congressional":"Fernando Poe Jr.",
   "Metro Point Mall":"EDSA","Adventist Medical Center Manila":"Gil Puyat","Padre Burgos Elementary School":"Libertad","Pasay City General Hospital":"Libertad",
 
   /* LRT-2 */
@@ -177,7 +451,7 @@ function setTheme(mode){
   footer.classList.toggle('bg-light', mode==='light');
 
   // swap icon & tooltip
-  themeIcon.src   = mode==='dark' ? 'sun.svg'  : 'moon.svg';
+  themeIcon.src   = mode==='dark' ? 'sun.svg'  : 'moon_black.svg';
   themeIcon.title = mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode';
 }
 
@@ -291,6 +565,11 @@ setInterval(rotateTip,5000);
 /* -------- FORM SUBMIT -------- */
 tripForm.onsubmit=e=>{
   e.preventDefault();
+  
+  // Hide fare display card when starting new search
+  const fareDisplayCard = document.getElementById('fareDisplayCard');
+  fareDisplayCard.style.display = 'none';
+  
   const mode=document.querySelector('input[name="searchType"]:checked').value;
   let s=startInput.value.trim(),d=endInput.value.trim();
   if(mode==='landmark'){s=landmarks[s];d=landmarks[d];}
@@ -314,6 +593,144 @@ tripForm.onsubmit=e=>{
     prev=o.line;prevLi=li;
   });
 
+  // Calculate fare with enhanced system
+  console.log('Calculating fare for path:', path);
+  const fareSegments = buildFareSegments(path);
+  console.log('Fare segments:', fareSegments);
+  
+  // Load user preferences
+  loadFarePreferences();
+  
+  // Calculate fare based on user preferences
+  const discounted = FARE_PREFS.passengerType !== 'Regular';
+  const fareResult = computeFare(fareSegments, { 
+    ticketType: FARE_PREFS.ticketType, 
+    discounted: discounted 
+  });
+  console.log('Fare result:', fareResult);
+  
+  // Calculate all variants for comparison
+  const allVariants = calculateAllFareVariants(fareSegments);
+  
+  // Add to fare history
+  addToFareHistory(s, d, fareResult.totalFare, FARE_PREFS.ticketType, discounted, fareSegments);
+  
+  // Show fare display card and populate content
+  const fareDisplayContent = document.getElementById('fareDisplayContent');
+  
+  if (fareResult.totalFare > 0) {
+    const passengerTypeLabel = FARE_PREFS.passengerType !== 'Regular' ? ` (${FARE_PREFS.passengerType})` : '';
+    const ticketTypeLabel = FARE_PREFS.ticketType === 'SVC' ? 'Beep Card' : 'Single Journey';
+    
+    fareDisplayContent.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+          <strong>💰 Estimated Fare:</strong> ₱${fareResult.totalFare} (${ticketTypeLabel}${passengerTypeLabel})
+          ${fareResult.transfers.length > 0 ? `<br><small>Transfers: ${fareResult.transfers.join(', ')}</small>` : ''}
+        </div>
+        <div>
+          <button class="btn btn-sm btn-outline-primary me-2" onclick="showFareBreakdown()">View Breakdown</button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="showFareHistory()">📊 History</button>
+        </div>
+      </div>
+      
+      ${FARE_PREFS.showComparison ? `
+        <div class="mt-3">
+          <h6 class="mb-2">💳 Fare Comparison</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-borderless mb-0">
+              <tbody>
+                <tr class="${allVariants.savings.SVC === 0 ? 'table-success' : ''}">
+                  <td>💳 Stored Value (Beep)</td>
+                  <td class="text-end">₱${allVariants.variants.SVC.totalFare}</td>
+                  <td class="text-end">${allVariants.savings.SVC === 0 ? '✅ Cheapest' : `+₱${allVariants.savings.SVC}`}</td>
+                </tr>
+                <tr class="${allVariants.savings.SJT === 0 ? 'table-success' : ''}">
+                  <td>🎟️ Single Journey</td>
+                  <td class="text-end">₱${allVariants.variants.SJT.totalFare}</td>
+                  <td class="text-end">${allVariants.savings.SJT === 0 ? '✅ Cheapest' : `+₱${allVariants.savings.SJT}`}</td>
+                </tr>
+                <tr class="${allVariants.savings.DISCOUNT === 0 ? 'table-success' : ''}">
+                  <td>🧓 Discounted</td>
+                  <td class="text-end">₱${allVariants.variants.DISCOUNT.totalFare}</td>
+                  <td class="text-end">${allVariants.savings.DISCOUNT === 0 ? '✅ Cheapest' : `+₱${allVariants.savings.DISCOUNT}`}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ` : ''}
+      
+      ${FARE_PREFS.showUnifiedFare ? `
+        <div class="mt-3">
+          <h6 class="mb-2">🔄 Beep 2.0 Simulation</h6>
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Unified Fare Estimate:</span>
+            <span class="fw-bold">₱${fareResult.unifiedFare}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Current Separate Fare:</span>
+            <span>₱${fareResult.totalFare}</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Potential Savings:</span>
+            <span class="${fareResult.unifiedFare < fareResult.totalFare ? 'text-success' : 'text-warning'}">
+              ₱${Math.abs(fareResult.unifiedFare - fareResult.totalFare)} ${fareResult.unifiedFare < fareResult.totalFare ? 'saved' : 'more'}
+            </span>
+          </div>
+          <small class="text-muted">Simulation only – actual unified fare TBD</small>
+        </div>
+      ` : ''}
+      
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-info me-2" onclick="showFareSettings()">⚙️ Settings</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="toggleFareComparison()">
+          ${FARE_PREFS.showComparison ? 'Hide' : 'Show'} Comparison
+        </button>
+        ${FARE_PREFS.passengerType === 'Regular' ? `
+          <button class="btn btn-sm btn-outline-warning ms-2" onclick="toggleUnifiedFare()">
+            ${FARE_PREFS.showUnifiedFare ? 'Hide' : 'Show'} Beep 2.0
+          </button>
+        ` : ''}
+      </div>
+      
+      <small class="text-muted">Fares based on official matrices; actual fare may vary due to operator updates.</small>
+    `;
+  } else if (fareSegments.length === 0) {
+    // Direct transfer - no train fare
+    fareDisplayContent.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>🚶 Direct Transfer:</strong> <span class="text-info">No train fare</span>
+          <br><small>Walk between stations - no train required</small>
+        </div>
+        <div>
+          <button class="btn btn-sm btn-outline-secondary" disabled>View Breakdown</button>
+        </div>
+      </div>
+      <small class="text-muted">This route involves walking between stations without taking a train.</small>
+    `;
+  } else {
+    fareDisplayContent.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>💰 Fare Calculation:</strong> <span class="text-warning">Unable to calculate fare</span>
+          <br><small>Please check console for details</small>
+        </div>
+        <div>
+          <button class="btn btn-sm btn-outline-secondary" disabled>View Breakdown</button>
+        </div>
+      </div>
+      <small class="text-muted">Fare calculation encountered an error. Please try a different route.</small>
+    `;
+  }
+  
+  // Show the fare display card
+  fareDisplayCard.style.display = 'block';
+
+  // Store fare data for breakdown modal
+  window.currentFareSegments = fareSegments;
+  window.currentFareResult = fareResult;
 
   lastRoute.start = s;   // update global
   lastRoute.end   = d;
@@ -562,5 +979,210 @@ confirmDelBtn.onclick = ()=>{
   bootstrap.Modal.getInstance(confirmDelModal).hide();
   renderBookmarks();                 // refresh list
 };
+
+/* -------- FARE BREAKDOWN FUNCTIONS -------- */
+function showFareBreakdown() {
+  if (!window.currentFareSegments) return;
+  
+  const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('fareBreakdownModal'));
+  updateFareBreakdown();
+  modal.show();
+}
+
+function updateFareBreakdown() {
+  if (!window.currentFareSegments) return;
+  
+  const ticketType = document.querySelector('input[name="ticketType"]:checked').value;
+  const discounted = document.getElementById('discountToggle').checked;
+  
+  const fareResult = computeFare(window.currentFareSegments, { ticketType, discounted });
+  const content = document.getElementById('fareBreakdownContent');
+  
+  let html = `
+    <div class="alert alert-success">
+      <h6 class="mb-0">💰 Total Fare: ₱${fareResult.totalFare} ${fareResult.currency}</h6>
+      <small>Ticket Type: ${ticketType}${discounted ? ' (Discounted)' : ''}</small>
+    </div>
+    <h6>Fare Breakdown:</h6>
+    <div class="table-responsive">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Line</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Fare</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  fareResult.breakdown.forEach(segment => {
+    html += `
+      <tr>
+        <td><span class="badge line-badge line-${segment.line}">${segment.line}</span></td>
+        <td>${segment.from}</td>
+        <td>${segment.to}</td>
+        <td>₱${segment.fare}</td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  if (fareResult.transfers.length > 0) {
+    html += `
+      <div class="alert alert-warning">
+        <strong>Transfers:</strong> ${fareResult.transfers.join(', ')}
+      </div>
+    `;
+  }
+  
+  content.innerHTML = html;
+}
+
+// Enhanced fare system functions
+function showFareSettings() {
+  const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('fareSettingsModal'));
+  
+  // Load current settings
+  loadFarePreferences();
+  document.getElementById('passengerTypeSelect').value = FARE_PREFS.passengerType;
+  document.querySelector(`input[name="defaultTicketType"][value="${FARE_PREFS.ticketType}"]`).checked = true;
+  document.getElementById('showComparisonToggle').checked = FARE_PREFS.showComparison;
+  document.getElementById('showUnifiedFareToggle').checked = FARE_PREFS.showUnifiedFare;
+  
+  modal.show();
+}
+
+function saveFareSettings() {
+  FARE_PREFS.passengerType = document.getElementById('passengerTypeSelect').value;
+  FARE_PREFS.ticketType = document.querySelector('input[name="defaultTicketType"]:checked').value;
+  FARE_PREFS.showComparison = document.getElementById('showComparisonToggle').checked;
+  FARE_PREFS.showUnifiedFare = document.getElementById('showUnifiedFareToggle').checked;
+  
+  saveFarePreferences();
+  bootstrap.Modal.getInstance(document.getElementById('fareSettingsModal')).hide();
+  
+  // Refresh current route if available
+  if (window.currentFareSegments) {
+    // Trigger form submission to recalculate
+    document.getElementById('tripForm').dispatchEvent(new Event('submit'));
+  }
+}
+
+function showFareHistory() {
+  const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('fareHistoryModal'));
+  const history = loadFareHistory();
+  const stats = getFareHistoryStats(history);
+  
+  // Display stats
+  const statsDiv = document.getElementById('fareHistoryStats');
+  if (stats) {
+    statsDiv.innerHTML = `
+      <div class="row text-center">
+        <div class="col-3">
+          <div class="h5 mb-0">₱${stats.totalSpent}</div>
+          <small class="text-muted">Total Spent</small>
+        </div>
+        <div class="col-3">
+          <div class="h5 mb-0">₱${stats.avgFare}</div>
+          <small class="text-muted">Avg Fare</small>
+        </div>
+        <div class="col-3">
+          <div class="h5 mb-0">₱${stats.monthlySpent}</div>
+          <small class="text-muted">This Month</small>
+        </div>
+        <div class="col-3">
+          <div class="h5 mb-0">${stats.totalTrips}</div>
+          <small class="text-muted">Total Trips</small>
+        </div>
+      </div>
+    `;
+  } else {
+    statsDiv.innerHTML = '<p class="text-muted text-center">No fare history yet</p>';
+  }
+  
+  // Display history
+  const contentDiv = document.getElementById('fareHistoryContent');
+  if (history.length === 0) {
+    contentDiv.innerHTML = '<p class="text-muted text-center">No trips recorded yet</p>';
+  } else {
+    let html = '<div class="list-group">';
+    history.forEach((entry, index) => {
+      const discountLabel = entry.discounted ? ` (${entry.ticketType === 'SVC' ? 'Discounted' : 'Student/Senior/PWD'})` : '';
+      const transferLabel = entry.transfers > 0 ? ` • ${entry.transfers} transfer${entry.transfers > 1 ? 's' : ''}` : '';
+      html += `
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>${entry.start} → ${entry.end}</strong>
+            <br><small class="text-muted">${entry.date} at ${entry.time}${transferLabel}</small>
+          </div>
+          <div class="text-end">
+            <span class="h6 mb-0">₱${entry.fare}</span>
+            <br><small class="text-muted">${entry.ticketType}${discountLabel}</small>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    contentDiv.innerHTML = html;
+  }
+  
+  modal.show();
+}
+
+function clearFareHistory() {
+  if (confirm('Are you sure you want to clear all fare history?')) {
+    localStorage.removeItem('fareHistory');
+    showFareHistory(); // Refresh the modal
+  }
+}
+
+function toggleFareComparison() {
+  FARE_PREFS.showComparison = !FARE_PREFS.showComparison;
+  saveFarePreferences();
+  
+  // Refresh current route if available
+  if (window.currentFareSegments) {
+    document.getElementById('tripForm').dispatchEvent(new Event('submit'));
+  }
+}
+
+function toggleUnifiedFare() {
+  FARE_PREFS.showUnifiedFare = !FARE_PREFS.showUnifiedFare;
+  saveFarePreferences();
+  
+  // Refresh current route if available
+  if (window.currentFareSegments) {
+    document.getElementById('tripForm').dispatchEvent(new Event('submit'));
+  }
+}
+
+function closeFareDisplay() {
+  const fareDisplayCard = document.getElementById('fareDisplayCard');
+  fareDisplayCard.style.display = 'none';
+}
+
+// Add event listeners for fare breakdown modal
+document.addEventListener('DOMContentLoaded', function() {
+  const ticketTypeRadios = document.querySelectorAll('input[name="ticketType"]');
+  const discountToggle = document.getElementById('discountToggle');
+  
+  ticketTypeRadios.forEach(radio => {
+    radio.addEventListener('change', updateFareBreakdown);
+  });
+  
+  if (discountToggle) {
+    discountToggle.addEventListener('change', updateFareBreakdown);
+  }
+  
+  // Load preferences on page load
+  loadFarePreferences();
+});
 
 
